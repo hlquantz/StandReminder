@@ -1,47 +1,52 @@
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.ActionEvent;
+import java.awt.AWTException;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.Image;
+import java.awt.MenuItem;
+import java.awt.PopupMenu;
+import java.awt.SystemTray;
+import java.awt.Toolkit;
+import java.awt.TrayIcon;
 import java.awt.event.ActionListener;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+
 public class Driver extends JFrame {
+    protected static Logger logger;
     private static final int HEIGHT = 150;
     private static final int WIDTH = 300;
     private static final Font labelFont = new Font("monospaced", Font.PLAIN, 35);
     private static final Font buttonFont = new Font("monospaced", Font.PLAIN, 20);
+    private  static final String windowTitle = "Reminder";
 
     public Driver(){
-        setTitle("Reminder");
+        setTitle(windowTitle);
         setSize(WIDTH, HEIGHT);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        createContent();
         setVisible(true);
     }
 
     //****************************************************************************************************
-    private void createContent(){
-
-    }
 
     public static void main(String[] args) {
-        OSUtils os = new OSUtils();
 
         if(SystemTray.isSupported()){
             SystemTray tray = SystemTray.getSystemTray();
             Image image = Toolkit.getDefaultToolkit().getImage("iPhoto-3-icon.png");
             MenuItem exit = new MenuItem("Exit");
             MenuItem about = new MenuItem("About");
-            ActionListener listener = new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    if (e.getSource().equals(exit)) {
-                        System.exit(0);
-                    } else if (e.getSource().equals(about)) {
-                        System.out.println("About");
-                    }
+            ActionListener listener = e -> {
+                if (e.getSource().equals(exit)) {
+                    System.exit(0);
+                } else if (e.getSource().equals(about)) {
+                    logger.log(null, "About");
                 }
             };
             PopupMenu popup = new PopupMenu();
@@ -60,18 +65,13 @@ public class Driver extends JFrame {
                 tray.add(trayIcon);
             }catch (AWTException e){
                 Logger.getLogger(Driver.class.getName()).log(Level.SEVERE, null, e);
-//                System.err.println(e);
             }
         }else if (!SystemTray.isSupported()){
-            System.out.println("not supported");
+            logger.log(null, "Not Supported");
         }
 
-        //Checks if Operating system is Mac OS X. Pop up will be handled differently if it is.
-        if (os.isMac()) {
-            time();
-        } else {
-            time();
-        }
+        //need to get the program to recognize operating system.
+        time();
     }
 
     //runs the timer for the popups
@@ -82,7 +82,7 @@ public class Driver extends JFrame {
             @Override
             public void run() {
                 JFrame f = new JFrame();
-                JDialog d = new JDialog(f, "Reminder", true);
+                JDialog d = new JDialog(f, windowTitle, true);
                 JButton button = new JButton("OK");
                 button.setFont(buttonFont);
                 button.addActionListener(e -> d.setVisible((false)));
@@ -94,14 +94,14 @@ public class Driver extends JFrame {
                 d.setSize(WIDTH,HEIGHT);
                 d.setAlwaysOnTop(true);
                 d.setVisible(true);
-                //System.out.println("test");
+                
             }
         };
         TimerTask task2 = new TimerTask() {
             @Override
             public void run() {
                 JFrame f = new JFrame();
-                JDialog d = new JDialog(f, "Reminder", true);
+                JDialog d = new JDialog(f, windowTitle, true);
                 JButton button = new JButton("OK");
                 button.setFont(buttonFont);
                 button.addActionListener(e -> d.setVisible((false)));
